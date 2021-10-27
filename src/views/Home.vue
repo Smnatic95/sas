@@ -152,12 +152,13 @@ export default {
       this.istouching = true;
       this.mbTouch.startposition.scrollTop = this.$refs.slist.scrollTop;
       this.mbTouch.startposition.clientY = e.targetTouches[0].clientY;
-      console.log('初始',this.mbTouch.startposition.scrollTop);
+      console.log('初始scrollTop',this.mbTouch.startposition.scrollTop);
     },
     mbtouchmove(e) {
-      let movedY = ( this.mbTouch.startposition.clientY - e.targetTouches[0].clientY).toFixed(2);
+      let movedY = parseInt( this.mbTouch.startposition.clientY - e.targetTouches[0].clientY);
    console.log('滚动了'+movedY)
    this.$refs.slist.scrollTop = this.mbTouch.startposition.scrollTop +  movedY;
+
       if (this.mbTouch.startposition.scrollTop == 0) {
         let ymove = parseInt(
           e.targetTouches[0].clientY - this.mbTouch.startposition.clientY
@@ -173,6 +174,7 @@ export default {
           this.topBoxtranslate = -this.$refs.tpbox.offsetHeight + ymove;
         }
       }
+
     },
     mbtouchend(e) {
       this.istouching = false;
@@ -284,6 +286,12 @@ export default {
     .list {
       height: 100%;
       overflow: auto;
+
+      .item{
+        color: #333;
+        text-align: center;
+        line-height: 30px;
+      }
     }
   }
 }
