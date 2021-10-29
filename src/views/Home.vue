@@ -1,11 +1,9 @@
 <template>
   <div class="home">
-    <!-- 顶部盒子 -->
     <transition name="trans">
-      <div class="sm-top-box" v-if="curTab == 1"></div>
+      <div class="sm-top-box" v-if="curTab == 1">DEMO</div>
     </transition>
     <div class="restrain">
-      <!--第一个盒子-->
       <div
         class="top_floatBox"
         ref="tpbox"
@@ -22,54 +20,60 @@
           林鄭月娥出席行政會議前表示，特區政府非常重視香港居民可以免檢疫返回內地，但暫時沒有制定通關日期，目標是愈早愈好，而即使日後可以免檢疫通關都會是有序進行，初期會實施配額，不會回復疫情前開放好多口岸讓市民隨便返回內地。
           被問到有外商表示，因香港持續維持出入境防疫限制，可能影響國際金融中心地位。林鄭月娥說，如要與內地通關，香港的防疫措施就要與內地配合，讓內地有信心讓港人免檢疫入境，而外防輸入的工作非常重要，如香港放寬外地人士來港的防疫限制，或採取與病毒共存策略，將減低與內地恢復通關的機會。
         </div>
-        <!--箭头-->
+        <!--箭头0-->
         <transition name="myfade">
-          <div
-            v-if="curTab === 0"
-            class="iconfont icon-tubiaozhizuo tab0"
-            :style="{
-              transform: `rotate(${
-                topBoxtranslate < -this.miniY ? '180deg' : '0deg'
-              })`,
-            }"
-          >
-            ↓
+          <div class="toparrbox" v-if="curTab === 0">
+            <div
+              class="iconfont icon-tubiaozhizuo- tab0"
+              :style="{
+                transform: `rotate(${
+                  topBoxtranslate < -this.miniY ? '180deg' : '0deg'
+                })`,
+              }"
+            ></div>
           </div>
         </transition>
       </div>
-      <!--第二个盒子-->
       <div
         class="mainbox scroll"
         :style="[
-          { transform: `translate(0px,${topBoxtranslate}px)` },
+          {
+            transform: `translate(0px,${topBoxtranslate}px)`,
+          },
           restrainTsStyle,
         ]"
-        @touchstart.prevent="mbtouchstart"
-        @touchmove.prevent="mbtouchmove"
-        @touchend.prevent="mbtouchend"
+        @touchstart="mbtouchstart"
+        @touchmove="mbtouchmove"
+        @touchend="mbtouchend"
       >
-        <div class="container list" ref="slist">
-          <div class="item" v-for="item in slist" :key="item.id">
-            这是第{{ item.id }}条数据
-          </div>
-        </div>
-        <!--箭头-->
-        <transition name="myfade">
-          <div
-            class="iconfont icon-tubiaozhizuo tab1"
-            v-if="curTab === 1"
-            :style="{
-              transform: `rotate(${
-                this.topBoxtranslate >
-                -this.$refs.tpbox.offsetHeight + this.miniY
-                  ? '180deg'
-                  : '0deg'
-              })`,
-            }"
-          >
-            ↓
+        <transition name="arrowbox">
+          <div class="arrowbox" v-if="curTab === 1">
+            <div
+              class="iconfont icon-tubiaozhizuo- tab1"
+              :style="{
+                transform: `rotate(${
+                  this.topBoxtranslate >
+                  -this.$refs.tpbox.offsetHeight + this.miniY
+                    ? '180deg'
+                    : '0deg'
+                })`,
+              }"
+            ></div>
           </div>
         </transition>
+        <div class="container" @scroll="mbscroll" ref="slist">
+          <div class="list">
+            <div class="item" v-for="item in slist" :key="item.id">
+              <img
+                src="https://oss-xpc0.xpccdn.com/uploadfile/article/2020/06/23/5ef183409997f.jpeg@750w.jpg"
+                alt=""
+                style="width: 100%"
+              />
+              这是第{{ item.id }}条数据
+            </div>
+          </div>
+          <div v-if="freshing" class="refreshing">....数据加载中.....</div>
+        </div>
       </div>
     </div>
   </div>
@@ -94,13 +98,15 @@ export default {
         },
       },
       topBoxtranslate: 0,
-      miniY: 70,
+      miniY: 40,
       curTab: 0,
       slist: [],
+      topboxHeight: 100,
+      freshing: false,
     };
   },
   created() {
-    for (var i = 0; i < 9999; i++) {
+    for (var i = 0; i < 10; i++) {
       this.slist.push({ id: i });
     }
   },
@@ -131,7 +137,6 @@ export default {
       if (ymove > 0) {
         return;
       }
-      console.log("tp y方向移动" + ymove + "px");
       if (ymove < -24) {
         let znMv = this.damping(ymove, 500);
         this.topBoxtranslate = -(Math.abs(znMv) + 21);
@@ -152,21 +157,16 @@ export default {
       this.istouching = true;
       this.mbTouch.startposition.scrollTop = this.$refs.slist.scrollTop;
       this.mbTouch.startposition.clientY = e.targetTouches[0].clientY;
-      console.log('初始scrollTop',this.mbTouch.startposition.scrollTop);
     },
     mbtouchmove(e) {
-      let movedY = parseInt( this.mbTouch.startposition.clientY - e.targetTouches[0].clientY);
-   console.log('滚动了'+movedY)
-   this.$refs.slist.scrollTop = this.mbTouch.startposition.scrollTop +  movedY;
-
-      if (this.mbTouch.startposition.scrollTop == 0) {
+      if (this.mbTouch.startposition.scrollTop === 0) {
         let ymove = parseInt(
           e.targetTouches[0].clientY - this.mbTouch.startposition.clientY
         );
         if (ymove < 0) {
           return;
         }
-        console.log("mb y方向移动" + ymove + "px");
+        e.preventDefault();
         if (ymove > 24) {
           let znMv = this.damping(ymove, 500);
           this.topBoxtranslate = -this.$refs.tpbox.offsetHeight + (znMv + 21);
@@ -174,7 +174,6 @@ export default {
           this.topBoxtranslate = -this.$refs.tpbox.offsetHeight + ymove;
         }
       }
-
     },
     mbtouchend(e) {
       this.istouching = false;
@@ -187,6 +186,29 @@ export default {
       } else {
         this.topBoxtranslate = -this.$refs.tpbox.offsetHeight;
       }
+    },
+    mbscroll(e) {
+      let selement = this.$refs.slist;
+      if (
+        selement.scrollHeight - selement.scrollTop <
+          selement.clientHeight + 50 &&
+        !this.freshing
+      ) {
+        this.onpullDown();
+      }
+    },
+    onpullDown() {
+      this.freshing = true;
+      setTimeout(() => {
+        let l = [];
+        for (var i = this.slist.length; i < this.slist.length + 9; i++) {
+          l.push({
+            id: i,
+          });
+        }
+        this.slist.push(...l);
+        this.freshing = false;
+      }, 2000);
     },
     damping(x, max) {
       let y = Math.abs(x);
@@ -208,36 +230,51 @@ export default {
   transform: translate(0, -100%);
 }
 
-.myfade-enter-active,
-.myfade-leave-active {
-  transition: opacity 0.5s;
+.arrowbox-enter,
+.arrowbox-leave-to {
+  height: 0 !important;
+}
+
+.arrowbox-enter-active,
+.arrowbox-leave-active {
+  transition: height 0.5s ease-out;
+
+  .icon-tubiaozhizuo- {
+    display: none;
+  }
 }
 
 .myfade-enter,
-.myfade-leave-active {
+.myfade-leave-to {
   opacity: 0;
 }
 
-.icon-tubiaozhizuo {
-  position: absolute;
+.myfade-enter-active {
+  transition: all 0.75s ease-out;
+}
+
+.myfade-leave-active {
+  transition: all 0.15s;
+}
+
+.icon-tubiaozhizuo- {
   font-size: 30px;
   color: #fff;
-  width: 30px;
-  height: 30px;
   text-align: center;
-  line-height: 30px;
   transition: transform 0.3s ease-out;
+  position: absolute;
 
   &.tab0 {
-    bottom: 100px;
+    bottom: 50px;
     left: 50%;
     transform: translate(-50%, 0);
   }
 
   &.tab1 {
-    top: 50px;
+    bottom: 20px;
     left: 50%;
     transform: translate(-50%, 0);
+    color: #2f3542;
   }
 }
 
@@ -245,9 +282,15 @@ export default {
   width: 100%;
   height: 100px;
   z-index: 20;
-  background: #747d8c;
+  background: linear-gradient(to bottom, #cc2b5e, #753a88);
   position: absolute;
   top: 0;
+  color: #fff;
+  font-size: 30px;
+  text-align: center;
+  line-height: 100px;
+  letter-spacing: 15px;
+  font-weight: 600;
 }
 
 .restrain {
@@ -276,21 +319,37 @@ export default {
 
   .mainbox {
     box-sizing: border-box;
-    padding-top: 100px;
     width: 100vw;
     height: 100vh;
     position: relative;
-    overflow-y: scroll;
-    background-color: #e67e22;
+    transition: all 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    padding-top: 5px;
 
-    .list {
-      height: 100%;
-      overflow: auto;
+    .arrowbox {
+      height: 95px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
 
-      .item{
+    .container {
+      overflow: scroll;
+      flex: 1;
+
+      .refreshing {
+        text-align: center;
+        height: 40px;
+        line-height: 40px;
+      }
+
+      .item {
         color: #333;
         text-align: center;
-        line-height: 30px;
+        line-height: 40px;
+        font-weight: 600;
+        font-size: 17px;
       }
     }
   }
